@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Admin Panel (followthewolf21)</title>
+    <title>Junior Moderator</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .admin-panel {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: var(--panel-bg-color, #ffffff);
+            border-radius: 12px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .admin-button {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 20px;
+            background-color: var(--button-bg-color, #007bff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: var(--button-font-size, 16px);
+            transition: background-color 0.3s ease;
+        }
+
+        .admin-button:hover {
+            background-color: #0056b3;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .log {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
+        .input-color {
+            width: 80px;
+            height: 30px;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* Notifications */
+        .notification {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 999;
+            transition: opacity 0.5s;
+        }
+
+        .notification.error {
+            background-color: #dc3545;
+        }
+
+        /* Customization */
+        .customization-panel {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the tooltip */
+            left: 50%;
+            margin-left: -60px; /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Roblox Admin Panel (Enhanced)</h1>
+
+<!-- Admin Panel -->
+<div class="admin-panel">
+    <div class="section">
+        <h2>Manage Users</h2>
+        <div class="input-group">
+            <label for="username">Target Username(s):</label>
+            <input type="text" id="username" placeholder="Enter username(s), comma-separated for bulk actions">
+        </div>
+
+        <div class="input-group">
+            <label for="robuxAmount">Robux Amount:</label>
+            <input type="number" id="robuxAmount" placeholder="Enter Robux amount" min="1" step="1">
+        </div>
+
+        <div class="input-group">
+            <label for="banDuration">Ban Duration:</label>
+            <select id="banDuration">
+                <option value="1 day">1 day</option>
+                <option value="3 days">3 days</option>
+                <option value="1 week">1 week</option>
+                <option value="1 month">1 month</option>
+                <option value="3 months">3 months</option>
+                <option value="1 year">1 year</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="reason">Reason for Ban/Warning:</label>
+            <textarea id="reason" rows="3" placeholder="Enter the reason"></textarea>
+        </div>
+
+        <button class="admin-button tooltip" onclick="confirmGiveRobux()">
+            Give Robux
+            <span class="tooltiptext">Give Robux to the user</span>
+        </button>
+        <button class="admin-button tooltip" onclick="confirmTempBanUser()">
+            Temporary Ban
+            <span class="tooltiptext">Ban user for a specific duration</span>
+        </button>
+        <button class="admin-button tooltip" onclick="confirmPermaBanUser()">
+            Permanent Ban
+            <span class="tooltiptext">Permanently ban the user</span>
+        </button>
+        <button class="admin-button tooltip" onclick="confirmIpBanUser()">
+            IP Ban
+            <span class="tooltiptext">Ban the user's IP address</span>
+        </button>
+        <button class="admin-button tooltip" onclick="confirmWarnUser()">
+            Warn User
+            <span class="tooltiptext">Issue a warning to the user</span>
+        </button>
+    </div>
+
+    <div class="section">
+        <h2>Log</h2>
+        <div class="log" id="logOutput"></div>
+    </div>
+</div>
+
+<!-- Customization Panel -->
+<div class="customization-panel">
+    <h2>Customize Admin Panel</h2>
+    <div class="settings-group">
+        <label for="panelColor">Panel Background Color:</label>
+        <input type="color" id="panelColor" class="input-color" value="#ffffff">
+    </div>
+
+    <div class="settings-group">
+        <label for="buttonColor">Button Background Color:</label>
+        <input type="color" id="buttonColor" class="input-color" value="#007bff">
+    </div>
+
+    <div class="settings-group">
+        <label for="fontSize">Button Font Size:</label>
+        <input type="number" id="fontSize" placeholder="Font size (px)" value="16">
+    </div>
+
+    <div class="settings-group">
+        <label for="borderRadius">Button Border Radius:</label>
+        <input type="number" id="borderRadius" placeholder="Border radius (px)" value="8">
+    </div>
+
+    <div class="settings-group">
+        <label for="fontFamily">Font Family:</label>
+        <select id="fontFamily">
+            <option value="Arial" selected>Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+        </select>
+    </div>
+
+    <button class="admin-button" onclick="applyCustomizations()">Apply Customizations</button>
+    <button class="admin-button" onclick="resetCustomizations()">Reset Customizations</button>
+</div>
+
+<!-- Notification -->
+<div id="notification" class="notification"></div>
+
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <p id="modalMessage"></p>
+        <button class="admin-button" id="confirmButton">Confirm</button>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        loadLog();
+        loadCustomizations();
+    };
+
+    function confirmGiveRobux() {
+        const usernames = document.getElementById("username").value.split(",").map(user => user.trim());
+        const robuxAmount = document.getElementById("robuxAmount").value;
+
+        if (usernames.length && robuxAmount) {
+            showConfirmation(`Give ${robuxAmount} Robux to ${usernames.join(", ")}?`, () => giveRobux(usernames, robuxAmount));
+        } else {
+            showNotification("Error: Missing usernames or Robux amount.", true);
+        }
+    }
+
+    function confirmTempBanUser() {
+        const usernames = document.getElementById("username").value.split(",").map(user => user.trim());
+        const duration = document.getElementById("banDuration").value;
+        const reason = document.getElementById("reason").value;
+
+        if (usernames.length && duration && reason) {
+            showConfirmation(`Temporarily ban ${usernames.join(", ")} for ${duration}?`, () => tempBanUser(usernames, duration, reason));
+        } else {
+            showNotification("Error: Missing username(s), duration, or reason.", true);
+        }
+    }
+
+    function confirmPermaBanUser() {
+        const usernames = document.getElementById("username").value.split(",").map(user => user.trim());
+        const reason = document.getElementById("reason").value;
+
+        if (usernames.length && reason) {
+            showConfirmation(`Permanently ban ${usernames.join(", ")}?`, () => permaBanUser(usernames, reason));
+        } else {
+            showNotification("Error: Missing username(s) or reason.", true);
+        }
+    }
+
+    function confirmIpBanUser() {
+        const usernames = document.getElementById("username").value.split(",").map(user => user.trim());
+
+        if (usernames.length) {
+            showConfirmation(`Ban IP address of ${usernames.join(", ")}?`, () => ipBanUser(usernames));
+        } else {
+            showNotification("Error: Missing username(s).", true);
+        }
+    }
+
+    function confirmWarnUser() {
+        const usernames = document.getElementById("username").value.split(",").map(user => user.trim());
+        const reason = document.getElementById("reason").value;
+
+        if (usernames.length && reason) {
+            showConfirmation(`Warn ${usernames.join(", ")} for: ${reason}?`, () => warnUser(usernames, reason));
+        } else {
+            showNotification("Error: Missing username(s) or reason.", true);
+        }
+    }
+
+    function showConfirmation(message, confirmAction) {
+        document.getElementById("modalMessage").innerText = message;
+        document.getElementById("confirmationModal").style.display = "block";
+        document.getElementById("confirmButton").onclick = function() {
+            confirmAction();
+            closeModal();
+        };
+    }
+
+    function closeModal() {
+        document.getElementById("confirmationModal").style.display = "none";
+    }
+
+    function showNotification(message, isError = false) {
+        const notification = document.getElementById("notification");
+        notification.innerText = message;
+        notification.className = `notification ${isError ? 'error' : ''}`;
+        notification.style.display = "block";
+
+        setTimeout(() => {
+            notification.style.display = "none";
+        }, 3000);
+    }
+
+    function giveRobux(usernames, robuxAmount) {
+        const logMessage = `Gave ${robuxAmount} Robux to ${usernames.join(", ")}.`;
+        logAction(logMessage);
+        showNotification(logMessage);
+    }
+
+    function tempBanUser(usernames, duration, reason) {
+        const logMessage = `Temporarily banned ${usernames.join(", ")} for ${duration}. Reason: ${reason}.`;
+        logAction(logMessage);
+        showNotification(logMessage);
+    }
+
+    function permaBanUser(usernames, reason) {
+        const logMessage = `Permanently banned ${usernames.join(", ")}. Reason: ${reason}.`;
+        logAction(logMessage);
+        showNotification(logMessage);
+    }
+
+    function ipBanUser(usernames) {
+        const logMessage = `IP banned ${usernames.join(", ")}.`;
+        logAction(logMessage);
+        showNotification(logMessage);
+    }
+
+    function warnUser(usernames, reason) {
+        const logMessage = `Warned ${usernames.join(", ")}. Reason: ${reason}.`;
+        logAction(logMessage);
+        showNotification(logMessage);
+    }
+
+    function logAction(message) {
+        const logOutput = document.getElementById("logOutput");
+        logOutput.innerText += `${new Date().toLocaleString()}: ${message}\n`;
+        saveLog();
+    }
+
+    function loadLog() {
+        const log = localStorage.getItem('adminLog');
+        if (log) {
+            document.getElementById("logOutput").innerText = log;
+        }
+    }
+
+    function saveLog() {
+        const log = document.getElementById("logOutput").innerText;
+        localStorage.setItem('adminLog', log);
+    }
+
+    function loadCustomizations() {
+        document.getElementById("panelColor").value = localStorage.getItem('panelColor') || '#ffffff';
+        document.getElementById("buttonColor").value = localStorage.getItem('buttonColor') || '#007bff';
+        document.getElementById("fontSize").value = localStorage.getItem('fontSize') || 16;
+        document.getElementById("borderRadius").value = localStorage.getItem('borderRadius') || 8;
+        document.getElementById("fontFamily").value = localStorage.getItem('fontFamily') || 'Arial';
+    }
+
+    function applyCustomizations() {
+        const panelColor = document.getElementById("panelColor").value;
+        const buttonColor = document.getElementById("buttonColor").value;
+        const fontSize = document.getElementById("fontSize").value;
+        const borderRadius = document.getElementById("borderRadius").value;
+        const fontFamily = document.getElementById("fontFamily").value;
+
+        document.documentElement.style.setProperty('--panel-bg-color', panelColor);
+        document.documentElement.style.setProperty('--button-bg-color', buttonColor);
+        document.documentElement.style.setProperty('--button-font-size', `${fontSize}px`);
+        document.documentElement.style.setProperty('--button-border-radius', `${borderRadius}px`);
+        document.body.style.fontFamily = fontFamily;
+
+        localStorage.setItem('panelColor', panelColor);
+        localStorage.setItem('buttonColor', buttonColor);
+        localStorage.setItem('fontSize', fontSize);
+        localStorage.setItem('borderRadius', borderRadius);
+        localStorage.setItem('fontFamily', fontFamily);
+
+        showNotification("Customizations applied!");
+    }
+
+    function resetCustomizations() {
+        localStorage.removeItem('panelColor');
+        localStorage.removeItem('buttonColor');
+        localStorage.removeItem('fontSize');
+        localStorage.removeItem('borderRadius');
+        localStorage.removeItem('fontFamily');
+
+        loadCustomizations();
+        showNotification("Customizations reset to default.");
+    }
+
+    // Additional Optimization and Features
+
+    function confirmUserAction(action, usernames, reason = "") {
+        let message = "";
+        switch(action) {
+            case 'tempBan':
+                message = `Temporarily ban ${usernames.join(", ")}?`;
+                break;
+            case 'permaBan':
+                message = `Permanently ban ${usernames.join(", ")}?`;
+                break;
+            case 'ipBan':
+                message = `Ban IP of ${usernames.join(", ")}?`;
+                break;
+            case 'warn':
+                message = `Warn ${usernames.join(", ")}: ${reason}?`;
+                break;
+            default:
+                message = "Unknown action!";
+        }
+        showConfirmation(message, () => executeUserAction(action, usernames, reason));
+    }
+
+    function executeUserAction(action, usernames, reason) {
+        switch(action) {
+            case 'tempBan':
+                tempBanUser(usernames, document.getElementById("banDuration").value, reason);
+                break;
+            case 'permaBan':
+                permaBanUser(usernames, reason);
+                break;
+            case 'ipBan':
+                ipBanUser(usernames);
+                break;
+            case 'warn':
+                warnUser(usernames, reason);
+                break;
+            default:
+                showNotification("Error: Action not recognized!", true);
+        }
+    }
+
+    function bulkAction(action) {
+        const usernames = document.getElementById("username").value.split(",").map(user => user.trim());
+        const reason = document.getElementById("reason").value;
+
+        if (usernames.length) {
+            confirmUserAction(action, usernames, reason);
+        } else {
+            showNotification("Error: No usernames provided!", true);
+        }
+    }
+
+    function handleEnter(event, action) {
+        if (event.key === "Enter") {
+            bulkAction(action);
+        }
+    }
+
+    // Event Listeners for Enter Key
+    document.getElementById("username").addEventListener("keypress", (event) => handleEnter(event, 'bulkAction'));
+    document.getElementById("reason").addEventListener("keypress", (event) => handleEnter(event, 'bulkAction'));
+
+</script>
+
+</body>
+</html>
